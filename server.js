@@ -4,7 +4,7 @@ const app = express()
 console.log("Running node version" + process.version);
 
 var MongoClient = require('mongodb').MongoClient;
-var url = "mongodb://Karri:wb123@ds133054.mlab.com:33054/wellbeing";
+var url = "mongodb://USER:PASSWORD@ds133054.mlab.com:33054/wellbeing";
 
 var bodyParser = require('body-parser');
 app.use(bodyParser.json()); // support json encoded bodies
