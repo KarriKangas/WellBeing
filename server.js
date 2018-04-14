@@ -48,18 +48,17 @@ app.post('/login', function (req,res){
                         for(i = 0; i < length;i++){
                                 if(username == values[i].name){
                                         console.log("Username found... Checking password...");
-
+										
                                         if(password == values[i].password){
                                                 console.log("Login attempt successful!");
-
-                                                resultToSend= ("Login successfull!");
+                                                resultToSend= (1);
                                         }else{
                                                 console.log("Login attempt failed");
-
-                                                resultToSend = ("Password mismatch for user " + username);
+                                                resultToSend = (0);
                                         }
+										break;
                                 }else{
-                                        resultToSend = ("Username " + username + " not found");
+                                        resultToSend = (-1);
                                 }
                         }
 
