@@ -69,7 +69,7 @@ app.post('/login', function (req,res){
 
         function loginTimer(){
                 if(TryConfirmAction(resultToSend)){
-                        res.send("Login attempt done: " + resultToSend);
+                        res.send(resultToSend);
                         clearInterval(tryLoginInterval);
                 }
         }
