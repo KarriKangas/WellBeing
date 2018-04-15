@@ -34,32 +34,31 @@ app.post('/login', function (req,res){
         console.log("Someone tried to /login");
         var username = req.body.username;
         var password = req.body.password;
+        var tokenToChange = Math.random().toString();
         var resultToSend = "";
+        var myquery = { name: username };
         console.log("with credentials " + username + "/" + password);
-        var query = { name : username };
         //res.send("Attempting to login");
         MongoClient.connect(url, function(err, db) {
         var dbo = db.db("wellbeing");
-        dbo.collection("users").find({}, {_id:0, values:1}).toArray(function(err, result) {
+        dbo.collection("users").find(myquery).toArray(function(err, result) {
                         if (err) throw err;
-                        console.log(result[0].values.length);
-                        var values = result[0].values;
-                        var length = result[0].values.length;
-                        for(i = 0; i < length;i++){
-                                if(username == values[i].name){
-                                        console.log("Username found... Checking password...");
-										
-                                        if(password == values[i].password){
-                                                console.log("Login attempt successful!");
-                                                resultToSend= (1);
-                                        }else{
-                                                console.log("Login attempt failed");
-                                                resultToSend = (0);
-                                        }
-										break;
-                                }else{
-                                        resultToSend = (-1);
-                                }
+
+                        if(!result[0]){
+                            resultToSend = (-1);
+                        }
+                            else if(password == result[0].password){
+                                console.log("Login attempt successful!");
+                                var newvalues = { $set: {token: tokenToChange } };
+								
+                        dbo.collection("users").updateOne(myquery, newvalues, function(err, res) {
+                                if (err) throw err;
+                                console.log("1 document updated");
+                                resultToSend = tokenToChange;
+                                });
+                        }else{
+                            console.log("Login attempt failed");
+                            resultToSend = (0);
                         }
 
                         db.close();
@@ -76,34 +75,6 @@ app.post('/login', function (req,res){
         }
 });
 
-app.post('/insert', function (req,res){
-        var nameToToken = req.body.name
-        var tokenToChange = Math.random().toString();
-        var resultToSend
-		
-		MongoClient.connect(url, function(err, db) {
-			if (err) throw err;
-			var dbo = db.db("wellbeing");
-			var myquery = { name: nameToToken };
-			var newvalues = { $set: {token: tokenToChange } };
-			dbo.collection("users").updateOne(myquery, newvalues, function(err, res) {
-				if (err) throw err;
-				console.log("1 document updated");
-				resultToSend = tokenToChange;
-			db.close();
-			});
-		});
-		
-		var trySendTokenInterval = setInterval(function() { tokenSendTimer() }, 1000);
-		
-		function tokenSendTimer(){
-                if(TryConfirmAction(resultToSend)){
-                        res.send(resultToSend);
-                        clearInterval(trySendTokenInterval);
-                }
-        }
-});
-
 function TryConfirmAction(result){
         if(result && result.length > 0 || result > -2){
                 return true;
@@ -111,3 +82,4 @@ function TryConfirmAction(result){
 
         return false;
 }
+
