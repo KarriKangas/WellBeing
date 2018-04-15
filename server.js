@@ -69,15 +69,43 @@ app.post('/login', function (req,res){
         var tryLoginInterval = setInterval(function() { loginTimer() }, 1000);
 
         function loginTimer(){
-                if(TryConfirmLogin(resultToSend)){
+                if(TryConfirmAction(resultToSend)){
                         res.send("Login attempt done: " + resultToSend);
                         clearInterval(tryLoginInterval);
                 }
         }
 });
 
-function TryConfirmLogin(result){
-        if(result && result.length > 0){
+app.post('/insert', function (req,res){
+        var nameToToken = req.body.name
+        var tokenToChange = Math.random().toString();
+        var resultToSend
+		
+		MongoClient.connect(url, function(err, db) {
+			if (err) throw err;
+			var dbo = db.db("wellbeing");
+			var myquery = { name: nameToToken };
+			var newvalues = { $set: {token: tokenToChange } };
+			dbo.collection("users").updateOne(myquery, newvalues, function(err, res) {
+				if (err) throw err;
+				console.log("1 document updated");
+				resultToSend = tokenToChange;
+			db.close();
+			});
+		});
+		
+		var trySendTokenInterval = setInterval(function() { tokenSendTimer() }, 1000);
+		
+		function tokenSendTimer(){
+                if(TryConfirmAction(resultToSend)){
+                        res.send(resultToSend);
+                        clearInterval(trySendTokenInterval);
+                }
+        }
+});
+
+function TryConfirmAction(result){
+        if(result && result.length > 0 || result > -2){
                 return true;
         }
 
