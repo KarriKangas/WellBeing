@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+var QA = require('./QA.js')
 
 console.log("Running node version" + process.version);
 
@@ -22,6 +23,8 @@ app.get('/', function(req, res) {
 app.listen(80, function() {
     return console.log('App listening on port 80!');
 });
+
+
 
 app.post('/numbers', function(req, res) {
     var number = req.body.nro;
@@ -47,7 +50,7 @@ app.post('/login', function(req, res) {
             if (err) throw err;
 
             if (!result[0]) {
-                resultToSend = (-1);
+                resultToSend = ("-1");
             } else if (password == result[0].password) {
                 console.log("Login attempt successful!");
                 var newvalues = {
@@ -55,15 +58,15 @@ app.post('/login', function(req, res) {
                         token: tokenToChange
                     }
                 };
-
                 dbo.collection("users").updateOne(myquery, newvalues, function(err, res) {
                     if (err) throw err;
                     console.log("1 document updated");
                     resultToSend = tokenToChange;
+
                 });
             } else {
                 console.log("Login attempt failed");
-                resultToSend = (0);
+                resultToSend = ("0");
             }
 
             db.close();
@@ -76,7 +79,7 @@ app.post('/login', function(req, res) {
 
     function loginTimer() {
         if (TryConfirmAction(resultToSend)) {
-            res.send(resultToSend);
+            res.send("" + resultToSend);
             clearInterval(tryLoginInterval);
         }
     }
@@ -89,6 +92,7 @@ function TryConfirmAction(result) {
 
     return false;
 }
+
 
 app.post('/question', function(req, res) {
     var tokenToFind = req.body.token;
@@ -118,6 +122,7 @@ app.post('/question', function(req, res) {
                     } else {
                         res.send(result[0].question);
                     }
+
                 });
 
                 //res.send("Error no token found");
@@ -126,6 +131,22 @@ app.post('/question', function(req, res) {
         });
     });
 
+
     console.log("We have success!");
 });
 
+var testAnswer = {
+    category: 1, // (which category)
+    answer: 5, // (what was the answer)
+    weight: 0.5, // (weight of questions answered)
+    previousAnswers: 18, //(Amount of previous answers)
+    category0WBI: 80.0, // (The index of category 0)
+    category1WBI: 80.0, // (The index of category 1)
+    category2WBI: 90.0, // (The index of category 2)
+    category3WBI: 40.0, // (The index of category 3)
+    category4WBI: 56.0, // (The index of category 4)
+    category5WBI: 78.0, // (The index of category 5)
+    totalWBI: 23.1
+}
+
+//console.log(QA.question.new_answer(testAnswer).weight + " and " + QA.question.new_answer(testAnswer).totalWBI + " hmm");
