@@ -247,6 +247,7 @@ app.post('/answer', function(req, res) {
                         console.log("No question!");
                     }
                     db.close();
+					res.send(1);
                 }
 
 
@@ -256,5 +257,40 @@ app.post('/answer', function(req, res) {
 
         });
     });
+});
+
+app.post('/wbidata', function(req, res) {
+    var tokenToFind = req.body.token;
+    var myquery = {
+        token: tokenToFind
+    }
+    MongoClient.connect(url, function(err, db) {
+        var dbo = db.db("wellbeing");
+        dbo.collection("users").find(myquery).toArray(function(err, result) {
+            if (err) throw err;
+
+            if (!result[0]) {
+                searchResult = -1;
+            } else if (tokenToFind == result[0].token) {
+                console.log("User found!");
+				var alldata = {
+					wbi : result[0].wbi,
+					C0Index : result[0].C0Index,
+					C1Index : result[0].C1Index,
+					C2Index : result[0].C2Index,
+					C3Index : result[0].C3Index,
+					C4Index : result[0].C4Index,
+					C5Index : result[0].C5Index
+					
+				};
+					
+                res.send(alldata);
+            }
+            db.close();
+        });
+    });
+
+
+    console.log("We have success!");
 });
 
